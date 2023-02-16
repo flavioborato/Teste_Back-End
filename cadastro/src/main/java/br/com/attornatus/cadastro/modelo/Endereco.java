@@ -30,6 +30,7 @@ public class Endereco {
 	private String cep;
 	private String cidade;
 	private String numero;
+	private Boolean status;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	private Pessoa pessoa;

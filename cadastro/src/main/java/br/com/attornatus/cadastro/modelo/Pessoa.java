@@ -2,6 +2,8 @@ package br.com.attornatus.cadastro.modelo;
 
 import java.util.List;
 
+import br.com.attornatus.cadastro.records.DadosCadastroPessoa;
+import br.com.attornatus.cadastro.records.DadosListaPessoa;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -25,6 +27,7 @@ import lombok.Setter;
 @EqualsAndHashCode(of = "id")
 public class Pessoa {
 	
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
@@ -33,6 +36,12 @@ public class Pessoa {
 	
 	@OneToMany(cascade = CascadeType.ALL, mappedBy = "pessoa", fetch = FetchType.LAZY )
 	private List<Endereco>  endereco;
+	
+
+	public Pessoa(DadosCadastroPessoa dadosCadastraPessoa) {
+		this.nome = dadosCadastraPessoa.nome();
+		this.dataDeNascimento = dadosCadastraPessoa.dataDeNascimento();	
+	}
 	
 
 }
