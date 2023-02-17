@@ -2,6 +2,7 @@ package br.com.attornatus.cadastro.modelo;
 
 import java.util.List;
 
+import br.com.attornatus.cadastro.records.DadosAtualizaPessoa;
 import br.com.attornatus.cadastro.records.DadosCadastroPessoa;
 import br.com.attornatus.cadastro.records.DadosListaPessoa;
 import jakarta.persistence.CascadeType;
@@ -12,6 +13,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -41,6 +43,16 @@ public class Pessoa {
 	public Pessoa(DadosCadastroPessoa dadosCadastraPessoa) {
 		this.nome = dadosCadastraPessoa.nome();
 		this.dataDeNascimento = dadosCadastraPessoa.dataDeNascimento();	
+	}
+
+
+	public void atualizarInformacoes(@Valid DadosAtualizaPessoa dadosAtualizaPessoa) {
+		if(dadosAtualizaPessoa.nome() != null) {
+			this.nome = dadosAtualizaPessoa.nome();
+		}
+		if(dadosAtualizaPessoa.dataDeNascimento() != null) {
+			this.dataDeNascimento = dadosAtualizaPessoa.dataDeNascimento();
+		}		
 	}
 	
 
