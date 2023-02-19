@@ -26,7 +26,7 @@ public interface EnderecoRepository extends JpaRepository<Endereco,Long>{
 	Page<Endereco> getAllByPessoaId (Long id,Pageable paginacao);
 	
 	
-	@Query(value = "SELECT * FROM enderecos e WHERE e.status= :status and e.id= :id", nativeQuery = true)
+	@Query(value = "SELECT * FROM enderecos e WHERE e.status= :status and e.pessoa_id= :id", nativeQuery = true)
 	Page<Endereco> buscaPessoaEnderecoPrincipal(Long id, Boolean status, Pageable pageable);
 	
 }

@@ -8,7 +8,6 @@
 
 package br.com.attornatus.cadastro.records.endereco;
 
-import java.util.List;
 
 import br.com.attornatus.cadastro.modelo.Endereco;
 

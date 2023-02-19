@@ -27,11 +27,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
+
+import br.com.attornatus.cadastro.modelo.Endereco;
 import br.com.attornatus.cadastro.modelo.Pessoa;
 import br.com.attornatus.cadastro.records.endereco.DadosListaEndereco;
 import br.com.attornatus.cadastro.records.pessoa.DadosAtualizaPessoa;
 import br.com.attornatus.cadastro.records.pessoa.DadosCadastroPessoa;
 import br.com.attornatus.cadastro.records.pessoa.DadosListaCompletaPessoa;
+import br.com.attornatus.cadastro.records.pessoa.DadosListaPessoaEnderecoPrincipal;
 import br.com.attornatus.cadastro.records.pessoa.DadosListaTodasPessoas;
 import br.com.attornatus.cadastro.repository.EnderecoRepository;
 import br.com.attornatus.cadastro.repository.PessoaRepository;
@@ -53,7 +56,7 @@ public class PessoaController {
 	 * */
 	@GetMapping("/{id}")
 	@Cacheable(value = "lista")
-	public ResponseEntity listaPorId(@PathVariable Long id,@PageableDefault(size = 20, sort = {"id"}) Pageable pageable){
+	public ResponseEntity listaPorId(@PathVariable Long id,@PageableDefault(size = 10, sort = {"id"}) Pageable pageable){
 		var idValido = 	pessoaRepository.findById(id);
 		if(idValido.isPresent()) {
 			var endereco = enderecoRepository.getAllByPessoaId(id,pageable).map(DadosListaEndereco::new);
@@ -69,12 +72,12 @@ public class PessoaController {
 	 * */
 	@GetMapping("/{id}/{status}")
 	@Cacheable(value = "lista")
-	public ResponseEntity listaPorId(@PathVariable Long id,@PathVariable Boolean status,@PageableDefault(size = 20, sort = {"id"}) Pageable pageable){
+	public ResponseEntity listaPorId(@PathVariable Long id,@PathVariable Boolean status,@PageableDefault Pageable pageable){
 		var idValido = 	pessoaRepository.findById(id);
 		if(idValido.isPresent()) {
 			var endereco = enderecoRepository.buscaPessoaEnderecoPrincipal(id, status, pageable).map(DadosListaEndereco::new);
 			var pessoa = pessoaRepository.getReferenceById(id);
-			return ResponseEntity.ok(new DadosListaCompletaPessoa(pessoa , endereco));
+			return ResponseEntity.ok(new DadosListaPessoaEnderecoPrincipal(pessoa , endereco));
 			
 		}
 		return ResponseEntity.notFound().build();
