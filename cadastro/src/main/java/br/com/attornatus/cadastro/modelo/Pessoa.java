@@ -1,10 +1,17 @@
+/*
+ * Classe de Pessoa
+ * Autor : Flávio Fernando Borato
+ * Versão : 0.0
+ * Data Ultima Revisão ; 19/02/2023
+ * 
+ * */
+
 package br.com.attornatus.cadastro.modelo;
 
 import java.util.List;
 
-import br.com.attornatus.cadastro.records.DadosAtualizaPessoa;
-import br.com.attornatus.cadastro.records.DadosCadastroPessoa;
-import br.com.attornatus.cadastro.records.DadosListaPessoa;
+import br.com.attornatus.cadastro.records.pessoa.DadosAtualizaPessoa;
+import br.com.attornatus.cadastro.records.pessoa.DadosCadastroPessoa;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -40,7 +47,7 @@ public class Pessoa {
 	private List<Endereco>  endereco;
 	
 
-	public Pessoa(DadosCadastroPessoa dadosCadastraPessoa) {
+	public Pessoa(@Valid DadosCadastroPessoa dadosCadastraPessoa) {
 		this.nome = dadosCadastraPessoa.nome();
 		this.dataDeNascimento = dadosCadastraPessoa.dataDeNascimento();	
 	}
@@ -54,6 +61,11 @@ public class Pessoa {
 			this.dataDeNascimento = dadosAtualizaPessoa.dataDeNascimento();
 		}		
 	}
+
+
+
+
+
 	
 
 }

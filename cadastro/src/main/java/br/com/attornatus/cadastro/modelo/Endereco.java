@@ -1,7 +1,15 @@
+/*
+ * Classe de Endereço
+ * Autor : Flávio Fernando Borato
+ * Versão : 0.0
+ * Data Ultima Revisão ; 19/02/2023
+ * 
+ * */
+
 package br.com.attornatus.cadastro.modelo;
 
-import br.com.attornatus.cadastro.records.DadosAtualizaEndereco;
-import br.com.attornatus.cadastro.records.DadosCadastroEndereco;
+
+import br.com.attornatus.cadastro.records.endereco.DadosAtualizaEndereco;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -26,8 +34,6 @@ import lombok.Setter;
 @EqualsAndHashCode(of = "id")
 public class Endereco {
 	
-
-
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
@@ -41,15 +47,17 @@ public class Endereco {
 	private Pessoa pessoa;
 	
 	
-	public Endereco(DadosCadastroEndereco dadosCadastraEndereco) {
-		this.logadouro = dadosCadastraEndereco.logadouro();
-		this.cep = dadosCadastraEndereco.cep();
-		this.cidade = dadosCadastraEndereco.cidade();
-		this.numero = dadosCadastraEndereco.numero();
-		this.status = dadosCadastraEndereco.status();
+	public Endereco(String logadouro, String cep, String cidade, String numero, Boolean status,
+			Pessoa pessoa) {		
+		this.logadouro = logadouro;
+		this.cep = cep;
+		this.cidade = cidade;
+		this.numero = numero;
+		this.status = status;
+		this.pessoa = pessoa;
 	}
-
-
+	
+	
 	public void atualizarInformacoes(@Valid DadosAtualizaEndereco dadosAtualizaEndereco) {
 		if(dadosAtualizaEndereco.logadouro() != null) {
 			this.logadouro = dadosAtualizaEndereco.logadouro();
@@ -66,4 +74,6 @@ public class Endereco {
 		this.status = dadosAtualizaEndereco.status();
 		
 	}
+
+
 }

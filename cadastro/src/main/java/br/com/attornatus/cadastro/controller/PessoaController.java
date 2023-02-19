@@ -1,4 +1,13 @@
+/*
+ * Controle de Requisição das Pessoas
+ * Autor : Flávio Fernando Borato
+ * Versão : 0.0
+ * Data Ultima Revisão ; 19/02/2023
+ * 
+ * */
+
 package br.com.attornatus.cadastro.controller;
+
 
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,9 +28,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 import br.com.attornatus.cadastro.modelo.Pessoa;
-import br.com.attornatus.cadastro.records.DadosAtualizaPessoa;
-import br.com.attornatus.cadastro.records.DadosCadastroPessoa;
-import br.com.attornatus.cadastro.records.DadosListaPessoa;
+import br.com.attornatus.cadastro.records.endereco.DadosListaEndereco;
+import br.com.attornatus.cadastro.records.pessoa.DadosAtualizaPessoa;
+import br.com.attornatus.cadastro.records.pessoa.DadosCadastroPessoa;
+import br.com.attornatus.cadastro.records.pessoa.DadosListaCompletaPessoa;
+import br.com.attornatus.cadastro.records.pessoa.DadosListaTodasPessoas;
+import br.com.attornatus.cadastro.repository.EnderecoRepository;
 import br.com.attornatus.cadastro.repository.PessoaRepository;
 import jakarta.validation.Valid;
 
@@ -32,25 +44,56 @@ public class PessoaController {
 	@Autowired
 	private PessoaRepository pessoaRepository;
 
+	@Autowired
+	private EnderecoRepository enderecoRepository;
+	
+	
+	/*
+	 * Lista completa com endereco de pessoa por ID informado
+	 * */
 	@GetMapping("/{id}")
 	@Cacheable(value = "lista")
-	public ResponseEntity listaPorId(@PathVariable Long id){
+	public ResponseEntity listaPorId(@PathVariable Long id,@PageableDefault(size = 20, sort = {"id"}) Pageable pageable){
 		var idValido = 	pessoaRepository.findById(id);
 		if(idValido.isPresent()) {
+			var endereco = enderecoRepository.getAllByPessoaId(id,pageable).map(DadosListaEndereco::new);
 			var pessoa = pessoaRepository.getReferenceById(id);
-			return ResponseEntity.ok(new DadosListaPessoa(pessoa));
+			return ResponseEntity.ok(new DadosListaCompletaPessoa(pessoa , endereco));
 		}
 		return ResponseEntity.notFound().build();
 	}
 	
-	@GetMapping
+	
+	/*
+	 * Lista endereco de pessoa por ID informado e Status true(Endereco Principal)
+	 * */
+	@GetMapping("/{id}/{status}")
 	@Cacheable(value = "lista")
-	public ResponseEntity<Page<DadosListaPessoa>> listaGeral(@PageableDefault(size = 20, sort = {"nome"}) Pageable pageable) {
-		var page = pessoaRepository.findAll(pageable).map(DadosListaPessoa::new);
-		return ResponseEntity.ok(page);
+	public ResponseEntity listaPorId(@PathVariable Long id,@PathVariable Boolean status,@PageableDefault(size = 20, sort = {"id"}) Pageable pageable){
+		var idValido = 	pessoaRepository.findById(id);
+		if(idValido.isPresent()) {
+			var endereco = enderecoRepository.buscaPessoaEnderecoPrincipal(id, status, pageable).map(DadosListaEndereco::new);
+			var pessoa = pessoaRepository.getReferenceById(id);
+			return ResponseEntity.ok(new DadosListaCompletaPessoa(pessoa , endereco));
+			
+		}
+		return ResponseEntity.notFound().build();
 	}
 	
 	
+	/*
+	 * Lista todas as pessoas (sem o endereço) 
+	 * */
+	@GetMapping
+	@Cacheable(value = "lista")
+	public ResponseEntity<Page<DadosListaTodasPessoas>> listaGeral(@PageableDefault(size = 20, sort = {"nome"}) Pageable pageable) {
+		var page = pessoaRepository.findAll(pageable).map(DadosListaTodasPessoas::new);
+		return ResponseEntity.ok(page);
+	}
+	
+	/*
+	 * Cadastra nova Pessoa
+	 * */
 	@PostMapping
 	@Transactional
 	@CacheEvict(value = "lista", allEntries = true)
@@ -59,10 +102,12 @@ public class PessoaController {
 		pessoaRepository.save(pessoa);
 		
 		var uri = uriBuilder.path("/pessoas/{id}").buildAndExpand(pessoa.getId()).toUri();
-		return ResponseEntity.created(uri).body(new DadosListaPessoa(pessoa));
+		return ResponseEntity.created(uri).body(new DadosListaTodasPessoas(pessoa));
 	}
 	
-	
+	/*
+	 * Altera Pessoa Cadastrada
+	 * */
 	@PutMapping
 	@Transactional
 	@CacheEvict(value = "lista", allEntries = true)
@@ -77,20 +122,22 @@ public class PessoaController {
 		return ResponseEntity.notFound().build();
 	}
 	
-	
+	/*
+	 * Deleta Pessoa por ID informado
+	 * */
 	@DeleteMapping("/{id}")
 	@Transactional
 	@CacheEvict(value = "lista", allEntries = true)
 	public ResponseEntity deletar(@PathVariable Long id) {
-		var pessoa = pessoaRepository.findById(id);				
+		var pessoa = pessoaRepository.findById(id);			
 		if (pessoa.isPresent()) {
+			var enderecos = enderecoRepository.findAllByPessoaId(id);
+			enderecoRepository.deleteAll(enderecos);
 			pessoaRepository.deleteById(id);
 			return ResponseEntity.ok().build();
 		}		
 		return ResponseEntity.notFound().build();
 			
 	}
-	
-	
-	
+		
 }
